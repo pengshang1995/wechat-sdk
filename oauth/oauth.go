@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/zhi-miao/wechat-sdk/context"
-	"github.com/zhi-miao/wechat-sdk/util"
+	"github.com/pengshang1995/wechat-sdk/context"
+	"github.com/pengshang1995/wechat-sdk/util"
 )
 
 const (

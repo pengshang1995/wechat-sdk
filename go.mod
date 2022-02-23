@@ -1,4 +1,4 @@
-module github.com/zhi-miao/wechat-sdk
+module github.com/pengshang1995/wechat-sdk
 
 go 1.14
 

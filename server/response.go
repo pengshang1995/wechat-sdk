@@ -3,10 +3,10 @@ package server
 import (
 	"encoding/xml"
 	"fmt"
-	"github.com/zhi-miao/wechat-sdk/message"
-	"github.com/zhi-miao/wechat-sdk/open"
-	"github.com/zhi-miao/wechat-sdk/pay"
-	"github.com/zhi-miao/wechat-sdk/util"
+	"github.com/pengshang1995/wechat-sdk/message"
+	"github.com/pengshang1995/wechat-sdk/open"
+	"github.com/pengshang1995/wechat-sdk/pay"
+	"github.com/pengshang1995/wechat-sdk/util"
 	"reflect"
 	"strconv"
 )

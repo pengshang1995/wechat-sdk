@@ -79,7 +79,7 @@ Cache主要用来保存全局access_token以及js-sdk中的ticket：
 
 
 更多API使用请参考 godoc ：
-[https://godoc.org/github.com/zhi-miao/wechat-sdk](https://godoc.org/github.com/zhi-miao/wechat-sdk)
+[https://godoc.org/github.com/pengshang1995/wechat-sdk](https://godoc.org/github.com/pengshang1995/wechat-sdk)
 
 ## License
 

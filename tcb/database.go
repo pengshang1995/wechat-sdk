@@ -3,7 +3,7 @@ package tcb
 import (
 	"fmt"
 
-	"github.com/zhi-miao/wechat-sdk/util"
+	"github.com/pengshang1995/wechat-sdk/util"
 )
 
 const (

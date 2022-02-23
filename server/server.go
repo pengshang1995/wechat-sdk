@@ -2,9 +2,9 @@ package server
 
 import (
 	"fmt"
-	"github.com/zhi-miao/wechat-sdk/context"
-	"github.com/zhi-miao/wechat-sdk/message"
-	"github.com/zhi-miao/wechat-sdk/pay"
+	"github.com/pengshang1995/wechat-sdk/context"
+	"github.com/pengshang1995/wechat-sdk/message"
+	"github.com/pengshang1995/wechat-sdk/pay"
 	"github.com/siddontang/go/log"
 	"runtime/debug"
 )
