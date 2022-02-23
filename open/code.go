@@ -420,7 +420,7 @@ func (m *MiniPrograms) QueryQuota() (ret QueryQuotaResponse, err error) {
 	return
 }
 
-func (m *MiniPrograms) setPrivacySetting(ownerSetting map[string]string) (ret util.CommonError, err error) {
+func (m *MiniPrograms) SetPrivacySetting(ownerSetting map[string]string) (ret util.CommonError, err error) {
 	body, err := m.post(setPrivacySetting, ownerSetting)
 	if err != nil {
 		return
