@@ -24,6 +24,7 @@ const (
 	setWeappSupportVersionURL = "https://api.weixin.qq.com/cgi-bin/wxopen/setweappsupportversion"
 	queryQuotaURL             = "https://api.weixin.qq.com/wxa/queryquota"
 	speedUpAuditURL           = "https://api.weixin.qq.com/wxa/speedupaudit"
+	setPrivacySetting         = "https://api.weixin.qq.com/cgi-bin/component/setprivacysetting"
 )
 
 // CommitParam 提交代码参数
@@ -405,6 +406,22 @@ func (m *MiniPrograms) SetWeappSupportVersion(version string) (err error) {
 // 服务商可以调用该接口，查询当月平台分配的提审限额和剩余可提审次数，以及当月分配的审核加急次数和剩余加急次数。（所有旗下小程序共用该额度）
 func (m *MiniPrograms) QueryQuota() (ret QueryQuotaResponse, err error) {
 	body, err := m.get(queryQuotaURL, nil)
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal(body, &ret)
+	if err != nil {
+		return
+	}
+	if ret.ErrCode != 0 {
+		err = fmt.Errorf("[%d]: %s", ret.ErrCode, ret.ErrMsg)
+		return
+	}
+	return
+}
+
+func (m *MiniPrograms) setPrivacySetting(ownerSetting map[string]string) (ret util.CommonError, err error) {
+	body, err := m.post(setPrivacySetting, ownerSetting)
 	if err != nil {
 		return
 	}
