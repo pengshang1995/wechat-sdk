@@ -25,6 +25,7 @@ const (
 	queryQuotaURL             = "https://api.weixin.qq.com/wxa/queryquota"
 	speedUpAuditURL           = "https://api.weixin.qq.com/wxa/speedupaudit"
 	setPrivacySetting         = "https://api.weixin.qq.com/cgi-bin/component/setprivacysetting"
+	getPrivacySetting         = "https://api.weixin.qq.com/cgi-bin/component/getprivacysetting"
 )
 
 // CommitParam 提交代码参数
@@ -421,7 +422,26 @@ func (m *MiniPrograms) QueryQuota() (ret QueryQuotaResponse, err error) {
 }
 
 func (m *MiniPrograms) SetPrivacySetting(ownerSetting map[string]string) (ret util.CommonError, err error) {
-	body, err := m.post(setPrivacySetting, ownerSetting)
+	rmap := map[string]interface{}{
+		"owner_setting": ownerSetting,
+	}
+	body, err := m.post(setPrivacySetting, rmap)
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal(body, &ret)
+	if err != nil {
+		return
+	}
+	if ret.ErrCode != 0 {
+		err = fmt.Errorf("[%d]: %s", ret.ErrCode, ret.ErrMsg)
+		return
+	}
+	return
+}
+
+func (m *MiniPrograms) GetPrivacySetting() (ret util.CommonError, err error) {
+	body, err := m.post(getPrivacySetting, nil)
 	if err != nil {
 		return
 	}
