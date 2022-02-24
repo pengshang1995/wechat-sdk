@@ -114,6 +114,16 @@ type QueryQuotaResponse struct {
 	SpeedupLimit int `json:"speedup_limit"` // 当月分配加急次数
 }
 
+type GetPrivacySettingResponse struct {
+	util.CommonError
+	CodeExist    int         `json:"code_exist"`    // 代码是否存在， 0 不存在， 1 存在 。如果最近没有通过commit接口上传代码，则会出现 code_exist=0的情况。
+	PrivacyList  []string    `json:"privacy_list"`  // 代码检测出来的用户信息类型（privacy_key）
+	SettingList  interface{} `json:"setting_list"`  // 要收集的用户信息配置
+	UpdateTime   int         `json:"update_time"`   //更新时间
+	OwnerSetting interface{} `json:"owner_setting"` //收集方（开发者）信息配置
+	PrivacyDesc  interface{} `json:"privacy_desc"`  // 要收集的用户信息配置
+}
+
 // Commit 上传小程序代码
 func (m *MiniPrograms) Commit(param CommitParam) (err error) {
 	var body []byte
@@ -421,9 +431,10 @@ func (m *MiniPrograms) QueryQuota() (ret QueryQuotaResponse, err error) {
 	return
 }
 
-func (m *MiniPrograms) SetPrivacySetting(ownerSetting map[string]string) (ret util.CommonError, err error) {
+func (m *MiniPrograms) SetPrivacySetting(ownerSetting map[string]string, settingList interface{}) (ret util.CommonError, err error) {
 	rmap := map[string]interface{}{
 		"owner_setting": ownerSetting,
+		"setting_list":  settingList,
 	}
 	body, err := m.post(setPrivacySetting, rmap)
 	if err != nil {
@@ -440,7 +451,7 @@ func (m *MiniPrograms) SetPrivacySetting(ownerSetting map[string]string) (ret ut
 	return
 }
 
-func (m *MiniPrograms) GetPrivacySetting() (ret util.CommonError, err error) {
+func (m *MiniPrograms) GetPrivacySetting() (ret GetPrivacySettingResponse, err error) {
 	body, err := m.post(getPrivacySetting, nil)
 	if err != nil {
 		return
