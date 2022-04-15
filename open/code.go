@@ -26,6 +26,7 @@ const (
 	speedUpAuditURL           = "https://api.weixin.qq.com/wxa/speedupaudit"
 	setPrivacySetting         = "https://api.weixin.qq.com/cgi-bin/component/setprivacysetting"
 	getPrivacySetting         = "https://api.weixin.qq.com/cgi-bin/component/getprivacysetting"
+	fastRegisterWeApp         = "https://api.weixin.qq.com/cgi-bin/component/fastregisterweapp?action=create"
 )
 
 // CommitParam 提交代码参数
@@ -81,6 +82,15 @@ type AuditStatusResponse struct {
 	Status     int    `json:"status"` // 0-审核成功 1-审核被拒绝 2-审核中 3-已撤回
 	Reason     string `json:"reason"`
 	ScreenShot string `json:"ScreenShot"`
+}
+
+type FastRegisterWeAppParam struct {
+	CompanyName        string `json:"name"`
+	CompanyCode        string `json:"code"`
+	CodeType           int    `json:"code_type"`
+	LegalPersonaWechat string `json:"legal_persona_wechat"`
+	LegalPersonaName   string `json:"legal_persona_name"`
+	ComponentPhone     string `json:"component_phone"`
 }
 
 // GrayReleasePlanResponse 分阶段发布计划结果
@@ -421,6 +431,29 @@ func (m *MiniPrograms) QueryQuota() (ret QueryQuotaResponse, err error) {
 		return
 	}
 	err = json.Unmarshal(body, &ret)
+	if err != nil {
+		return
+	}
+	if ret.ErrCode != 0 {
+		err = fmt.Errorf("[%d]: %s", ret.ErrCode, ret.ErrMsg)
+		return
+	}
+	return
+}
+func (o *Open) FastRegisterWeApp(param FastRegisterWeAppParam) (ret util.CommonError, err error) {
+	url, err := o.buildRequestV2(fastRegisterWeApp, nil)
+	fmt.Println(url)
+	if err != nil {
+		return
+	}
+	body, err := util.PostJSON(url, param)
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(body, &ret)
+	fmt.Println(ret)
+
 	if err != nil {
 		return
 	}

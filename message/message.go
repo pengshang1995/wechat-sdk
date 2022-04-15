@@ -97,6 +97,8 @@ const (
 	InfoTypeUnauthorized = "unauthorized"
 	// InfoTypeUpdateAuthorized 更新授权
 	InfoTypeUpdateAuthorized = "updateauthorized"
+	//NotifyThirdFasteregister 注册审核事件推送
+	NotifyThirdFasteregister = "notify_third_fasteregister"
 )
 
 // MixMessage 存放所有微信发送过来的消息和事件
@@ -158,6 +160,16 @@ type MixMessage struct {
 	PreAuthCode                  string   `xml:"PreAuthCode"`
 	Reason                       string   `xml:"Reason"`
 	ScreenShot                   string   `xml:"ScreenShot"`
+	MiniProgramAppid             string   `xml:"appid"`
+	MiniProgramStatus            int64    `xml:"status"`
+	MiniProgramMsg               string   `xml:"msg"`
+	MiniProgramRegInfo           struct {
+		CompanyCode        string `xml:"code"`
+		CompanyName        string `xml:"name"`
+		CodeType           int8   `xml:"code_type"`
+		LegalPersonaWechat string `xml:"legal_persona_wechat"`
+		LegalPersonaName   string `xml:"legal_persona_name"`
+	} `xml:"info"`
 
 	// 卡券相关
 	CardID              string `xml:"CardId"`

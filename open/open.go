@@ -102,11 +102,32 @@ func (o *Open) buildRequest(urlStr string, param map[string]string) (requestURL 
 	return
 }
 
+func (o *Open) buildRequestV2(urlStr string, param map[string]string) (requestURL string, err error) {
+	accessToken, err := o.GetComponentAccessToken()
+	if err != nil {
+		return
+	}
+	u, err := url.Parse(urlStr)
+	qs := u.Query()
+	qs.Add("component_access_token", accessToken)
+	if param != nil {
+		for k, v := range param {
+			qs.Set(k, v)
+		}
+	}
+	u.RawQuery = qs.Encode()
+	requestURL = u.String()
+	return
+}
+
 // fetchData 拉取统计数据
 func (o *Open) post(urlStr string, body interface{}) (response []byte, err error) {
 	sendURL, err := o.buildRequest(urlStr, nil)
 	if err != nil {
 		return
+	}
+	if body == nil {
+		body = map[string]string{}
 	}
 	response, err = util.PostJSON(sendURL, body)
 	return
