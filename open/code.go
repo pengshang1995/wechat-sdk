@@ -442,7 +442,6 @@ func (m *MiniPrograms) QueryQuota() (ret QueryQuotaResponse, err error) {
 }
 func (o *Open) FastRegisterWeApp(param FastRegisterWeAppParam) (ret util.CommonError, err error) {
 	url, err := o.buildRequestV2(fastRegisterWeApp, nil)
-	fmt.Println(url)
 	if err != nil {
 		return
 	}
@@ -452,7 +451,6 @@ func (o *Open) FastRegisterWeApp(param FastRegisterWeAppParam) (ret util.CommonE
 	}
 
 	err = json.Unmarshal(body, &ret)
-	fmt.Println(ret)
 
 	if err != nil {
 		return
