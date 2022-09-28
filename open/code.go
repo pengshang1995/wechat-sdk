@@ -40,9 +40,10 @@ type CommitParam struct {
 
 // CommitParamExt 此处还能支持更多，不过貌似没啥用
 type CommitParamExt struct {
-	ExtAppID  string            `json:"extAppid"` // appid
-	ExtEnable bool              `json:"extEnable"`
-	Ext       map[string]string `json:"ext"` // 附加扩展配置
+	ExtAppID             string            `json:"extAppid"` // appid
+	ExtEnable            bool              `json:"extEnable"`
+	RequiredPrivateInfos []string          `json:"requiredPrivateInfos"`
+	Ext                  map[string]string `json:"ext"` // 附加扩展配置
 }
 
 // CodePageList 已上传的代码的页面列表
@@ -144,6 +145,8 @@ func (m *MiniPrograms) Commit(param CommitParam) (err error) {
 
 	//配置文件设置为true
 	param.Ext.ExtEnable = true
+	//配置
+	param.Ext.RequiredPrivateInfos = []string{"getLocation"}
 
 	if param.ExtJSON == "" {
 		var extJsonByte []byte
