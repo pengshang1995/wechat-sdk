@@ -27,6 +27,7 @@ const (
 	setPrivacySetting         = "https://api.weixin.qq.com/cgi-bin/component/setprivacysetting"
 	getPrivacySetting         = "https://api.weixin.qq.com/cgi-bin/component/getprivacysetting"
 	fastRegisterWeApp         = "https://api.weixin.qq.com/cgi-bin/component/fastregisterweapp?action=create"
+	ApplyPrivacyInterfaceURL  = "https://api.weixin.qq.com/wxa/security/apply_privacy_interface"
 )
 
 // CommitParam 提交代码参数
@@ -36,6 +37,13 @@ type CommitParam struct {
 	ExtJSON     string         `json:"ext_json"`     // 扩展
 	UserVersion string         `json:"user_version"` // 提交版本
 	UserDesc    string         `json:"user_desc"`    // 版本说明
+}
+
+// ApplyPrivacyInterfaceParam 提交代码参数
+type ApplyPrivacyInterfaceParam struct {
+	ApiName string   `json:"api_name"` //申请的 api 英文名
+	Content string   `json:"content"`  //申请的 api 英文名
+	PicList []string `json:"pic_list"` //(辅助图片)填写图片的url ，最多10个
 }
 
 // CommitParamExt 此处还能支持更多，不过貌似没啥用
@@ -133,6 +141,36 @@ type GetPrivacySettingResponse struct {
 	UpdateTime   int         `json:"update_time"`   //更新时间
 	OwnerSetting interface{} `json:"owner_setting"` //收集方（开发者）信息配置
 	PrivacyDesc  interface{} `json:"privacy_desc"`  // 要收集的用户信息配置
+}
+
+// ApplyPrivacyInterface
+func (m *MiniPrograms) ApplyPrivacyInterface() (err error) {
+	var body []byte
+	ret := util.CommonError{}
+
+	picList := []string{
+		"http://tcpublic-1254389369.cos.ap-guangzhou.myqcloud.com/fem/resource/4241d8a44d277c92a5afc82411b81639.jpg",
+		"http://tcpublic-1254389369.cos.ap-guangzhou.myqcloud.com/fem/resource/c7a55417c3ec6f153cd003b7858615e9.jpg",
+		"http://tcpublic-1254389369.cos.ap-guangzhou.myqcloud.com/fem/resource/da13e4aa33a6f15de4c5572841ec9bdf.jpg",
+	}
+	applyPrivacyInterfaceParams := ApplyPrivacyInterfaceParam{
+		ApiName: "wx.getLocation",
+		Content: "由于涉及求职招聘业务，需要使用用户精确的经纬度数据，在系统内用于精确解析用户所在城市推荐职位。",
+		PicList: picList,
+	}
+
+	body, err = m.post(ApplyPrivacyInterfaceURL, applyPrivacyInterfaceParams)
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal(body, &ret)
+	if err != nil {
+		return
+	}
+	if ret.ErrCode != 0 {
+		err = fmt.Errorf("[%d]: %s", ret.ErrCode, ret.ErrMsg)
+	}
+	return
 }
 
 // Commit 上传小程序代码
