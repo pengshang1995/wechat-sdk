@@ -177,7 +177,7 @@ type MixMessage struct {
 		AuditId   string `xml:"audit_id"`
 		AuditTime string `xml:"audit_time"`
 		Reason    string `xml:"reason"`
-		status    string `xml:"status"`
+		Status    string `xml:"status"`
 	} `xml:"result_info"`
 	// 卡券相关
 	CardID              string `xml:"CardId"`
