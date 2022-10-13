@@ -86,6 +86,7 @@ const (
 	EventWeappAuditFail = "weapp_audit_fail"
 	// EventWeappAuditDelay 小程序审核延后
 	EventWeappAuditDelay = "weapp_audit_delay"
+	EventWxaPrivacy      = "wxa_privacy_apply"
 )
 
 const (
@@ -170,7 +171,14 @@ type MixMessage struct {
 		LegalPersonaWechat string `xml:"legal_persona_wechat"`
 		LegalPersonaName   string `xml:"legal_persona_name"`
 	} `xml:"info"`
-
+	MiniProgramApplyInfo struct {
+		ApiName   string `xml:"api_name"`
+		ApplyTime string `xml:"apply_time"`
+		AuditId   string `xml:"audit_id"`
+		AuditTime string `xml:"audit_time"`
+		Reason    string `xml:"reason"`
+		status    string `xml:"status"`
+	} `xml:"result_info"`
 	// 卡券相关
 	CardID              string `xml:"CardId"`
 	RefuseReason        string `xml:"RefuseReason"`
