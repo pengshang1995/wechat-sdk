@@ -184,7 +184,7 @@ func (m *MiniPrograms) Commit(param CommitParam) (err error) {
 	//配置文件设置为true
 	param.Ext.ExtEnable = true
 	//配置
-	param.Ext.RequiredPrivateInfos = []string{"getLocation", "getFuzzyLocation"}
+	param.Ext.RequiredPrivateInfos = []string{"getFuzzyLocation"}
 
 	if param.ExtJSON == "" {
 		var extJsonByte []byte
