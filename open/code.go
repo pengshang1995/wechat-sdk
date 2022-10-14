@@ -154,8 +154,8 @@ func (m *MiniPrograms) ApplyPrivacyInterface() (err error) {
 		"http://tcpublic-1254389369.cos.ap-guangzhou.myqcloud.com/fem/resource/da13e4aa33a6f15de4c5572841ec9bdf.jpg",
 	}
 	applyPrivacyInterfaceParams := ApplyPrivacyInterfaceParam{
-		ApiName: "wx.getLocation",
-		Content: "由于涉及求职招聘业务，需要使用用户精确的经纬度数据，在系统内用于精确解析用户所在城市推荐职位。",
+		ApiName: "wx.getFuzzylocation",
+		Content: "由于涉及求职招聘业务，需要使用用户模糊的经纬度数据，在系统内用于精确解析用户所在城市推荐职位。",
 		PicList: picList,
 	}
 
@@ -184,7 +184,7 @@ func (m *MiniPrograms) Commit(param CommitParam) (err error) {
 	//配置文件设置为true
 	param.Ext.ExtEnable = true
 	//配置
-	param.Ext.RequiredPrivateInfos = []string{"getLocation"}
+	param.Ext.RequiredPrivateInfos = []string{"getFuzzylocation"}
 
 	if param.ExtJSON == "" {
 		var extJsonByte []byte
