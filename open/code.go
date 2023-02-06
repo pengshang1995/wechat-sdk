@@ -28,6 +28,7 @@ const (
 	getPrivacySetting         = "https://api.weixin.qq.com/cgi-bin/component/getprivacysetting"
 	fastRegisterWeApp         = "https://api.weixin.qq.com/cgi-bin/component/fastregisterweapp?action=create"
 	ApplyPrivacyInterfaceURL  = "https://api.weixin.qq.com/wxa/security/apply_privacy_interface"
+	plugin                    = "https://api.weixin.qq.com/wxa/plugin"
 )
 
 // CommitParam 提交代码参数
@@ -37,6 +38,25 @@ type CommitParam struct {
 	ExtJSON     string         `json:"ext_json"`     // 扩展
 	UserVersion string         `json:"user_version"` // 提交版本
 	UserDesc    string         `json:"user_desc"`    // 版本说明
+}
+type PluginParam struct {
+	Action      string `json:"action"`
+	PluginAppid string `json:"plugin_appid"`
+	Reason      string `json:"reason"`
+	UserVersion string `json:"user_version"`
+}
+
+type PluginParamResponse struct {
+	ErrCode    int               `json:"errcode"`
+	ErrMsg     string            `json:"errmsg"`
+	PluginList []PluginParamItem `json:"plugin_list"`
+}
+
+type PluginParamItem struct {
+	Appid      string `json:"appid"`
+	Status     int    `json:"status"`
+	NickName   string `json:"nickname"`
+	HeadImgUrl string `json:"headimgurl"`
 }
 
 // ApplyPrivacyInterfaceParam 提交代码参数
@@ -532,6 +552,24 @@ func (m *MiniPrograms) GetPrivacySetting() (ret GetPrivacySettingResponse, err e
 	if err != nil {
 		return
 	}
+	if ret.ErrCode != 0 {
+		err = fmt.Errorf("[%d]: %s", ret.ErrCode, ret.ErrMsg)
+		return
+	}
+	return
+}
+func (m *MiniPrograms) Plugin(param PluginParam) (ret PluginParamResponse, err error) {
+	params := map[string]string{
+		"action":       param.Action,
+		"plugin_appid": param.PluginAppid,
+		"reason":       param.Reason,
+		"user_version": param.UserVersion,
+	}
+	body, err := m.post(plugin, params)
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal(body, &ret)
 	if ret.ErrCode != 0 {
 		err = fmt.Errorf("[%d]: %s", ret.ErrCode, ret.ErrMsg)
 		return
