@@ -49,6 +49,9 @@ const (
 	MsgTypeTransfer = "transfer_customer_service"
 	// MsgTypeEvent 表示事件推送消息
 	MsgTypeEvent = "event"
+
+	//MsgTypePush 抖音事件推送
+	MsgTypePush = "PUSH"
 )
 
 const (
@@ -87,6 +90,9 @@ const (
 	// EventWeappAuditDelay 小程序审核延后
 	EventWeappAuditDelay = "weapp_audit_delay"
 	EventWxaPrivacy      = "wxa_privacy_apply"
+
+	//抖音event
+	EventTicket = "Ticket"
 )
 
 const (
@@ -101,6 +107,27 @@ const (
 	//NotifyThirdFasteregister 注册审核事件推送
 	NotifyThirdFasteregister = "notify_third_fasteregister"
 )
+
+// DouYinEncryptData 抖音解密数据
+type DouYinEncryptData struct {
+	Nonce        string `json:"Nonce"`
+	TimeStamp    string `json:"TimeStamp"`
+	Encrypt      string `json:"Encrypt"`
+	MsgSignature string `json:"MsgSignature"`
+}
+
+type DouYinCommonData struct {
+	Event   string `json:"Event"`
+	MsgType string `json:"MsgType"`
+}
+
+type DouYinMixMessage struct {
+	DouYinCommonData
+	CreateTime   string `json:"CreateTime"`
+	FromUserName string `json:"FromUserName"`
+	Ticket       string `json:"Ticket"`
+	AppID        string
+}
 
 // MixMessage 存放所有微信发送过来的消息和事件
 type MixMessage struct {

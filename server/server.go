@@ -12,19 +12,21 @@ import (
 // Server struct
 type Server struct {
 	*context.Context
-	debug          bool                                    // 是否调试模式
-	openID         string                                  // 用户唯一openid
-	messageHandler func(message.MixMessage) *message.Reply // 消息钩子
-	payHandler     func(pay.NotifyResult) *message.Reply   // 消息钩子
-	requestRaw     []byte                                  // 原始数据
-	requestMsg     message.MixMessage                      // 消息类型数据
-	requestPayMsg  pay.NotifyResult                        // 支付消息类型数据
-	responseType   message.ResponseType                    // 返回类型 string xml json
-	responseMsg    interface{}                             // 响应数据
-	isSafeMode     bool                                    // 是否是加密模式
-	random         []byte
-	nonce          string
-	timestamp      int64
+	debug                bool                                          // 是否调试模式
+	openID               string                                        // 用户唯一openid
+	messageHandler       func(message.MixMessage) *message.Reply       // 消息钩子
+	douYinMessageHandler func(message.DouYinMixMessage) *message.Reply // 消息钩子
+	payHandler           func(pay.NotifyResult) *message.Reply         // 消息钩子
+	requestRaw           []byte                                        // 原始数据
+	requestMsg           message.MixMessage                            // 消息类型数据
+	requestMsgDouYin     message.DouYinEncryptData                     // 消息类型数据
+	requestPayMsg        pay.NotifyResult                              // 支付消息类型数据
+	responseType         message.ResponseType                          // 返回类型 string xml json
+	responseMsg          interface{}                                   // 响应数据
+	isSafeMode           bool                                          // 是否是加密模式
+	random               []byte
+	nonce                string
+	timestamp            int64
 }
 
 // NewServer init
@@ -32,6 +34,23 @@ func NewServer(context *context.Context) *Server {
 	srv := new(Server)
 	srv.Context = context
 	return srv
+}
+
+// DouYinServe 处理抖音的请求
+func (srv *Server) DouYinServe() error {
+	echostr, exists := srv.GetQuery("echostr")
+	if exists {
+		srv.String(echostr)
+		return nil
+	}
+	response, err := srv.handleRequestDouYin()
+	if err != nil {
+		return err
+	}
+	if srv.debug {
+		log.Info("request msg = ", string(srv.requestRaw))
+	}
+	return srv.buildResponse(response)
 }
 
 // Serve 处理微信的请求消息
@@ -65,6 +84,10 @@ func (srv *Server) SetDebug(debug bool) {
 // SetMessageHandler 常规消息钩子
 func (srv *Server) SetMessageHandler(handler func(message.MixMessage) *message.Reply) {
 	srv.messageHandler = handler
+}
+
+func (srv *Server) SetDouYinMessageHandler(handler func(mixMessage message.DouYinMixMessage) *message.Reply) {
+	srv.douYinMessageHandler = handler
 }
 
 // SetPayHandler 支付消息钩子

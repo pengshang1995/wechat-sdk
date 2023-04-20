@@ -1,7 +1,13 @@
 package server
 
 import (
+	"bytes"
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/sha1"
 	"encoding/base64"
+	"encoding/binary"
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"github.com/pengshang1995/wechat-sdk/message"
@@ -9,7 +15,9 @@ import (
 	"github.com/pengshang1995/wechat-sdk/util"
 	"github.com/siddontang/go/log"
 	"io/ioutil"
+	"sort"
 	"strconv"
+	"strings"
 )
 
 type chooseModel struct {
@@ -33,7 +41,7 @@ func (m *chooseModel) IsMessage() bool {
 	return !m.IsPay()
 }
 
-//HandleRequest 处理微信的请求
+// HandleRequest 处理微信的请求
 func (srv *Server) handleRequest() (reply *message.Reply, err error) {
 	srv.requestRaw, err = ioutil.ReadAll(srv.Request.Body)
 	if err != nil {
@@ -51,6 +59,18 @@ func (srv *Server) handleRequest() (reply *message.Reply, err error) {
 	} else {
 		reply, err = srv.getMessage()
 	}
+	return
+}
+
+// handleRequestDouYin 处理抖音的请求
+func (srv *Server) handleRequestDouYin() (reply *message.Reply, err error) {
+	srv.requestRaw, err = ioutil.ReadAll(srv.Request.Body)
+	if err != nil {
+		err = fmt.Errorf("从body中解析xml失败, err=%v", err)
+		return
+	}
+
+	reply, err = srv.getDouYinMessage()
 	return
 }
 
@@ -102,7 +122,130 @@ func (srv *Server) getPay() (reply *message.Reply, err error) {
 	return
 }
 
-//getMessage 解析常规消息结构
+func (srv *Server) getDouYinMessage() (reply *message.Reply, err error) {
+	var douYinEncryptData message.DouYinEncryptData
+	err = xml.Unmarshal(srv.requestRaw, &douYinEncryptData)
+	if err != nil {
+		err = fmt.Errorf("解析抖音验签参数失败")
+		return
+	}
+	//验证签名
+	err = VerifyByteDanceServer(srv.Token, douYinEncryptData.TimeStamp, douYinEncryptData.Nonce, douYinEncryptData.Encrypt, douYinEncryptData.MsgSignature)
+	if err != nil {
+		err = fmt.Errorf(err.Error())
+		return
+	}
+
+	var douYinMixMessage message.DouYinMixMessage
+
+	douYinMixMessage, err = DecryptByteDanceMsg(srv.EncodingAESKey, douYinEncryptData.Encrypt)
+	if err != nil {
+		err = fmt.Errorf(err.Error())
+		return
+	}
+	//由于返回的没有appid 需要保存下来传入的appid
+	douYinMixMessage.AppID = srv.AppID
+	//
+	reply = srv.douYinMessageHandler(douYinMixMessage)
+
+	return
+
+}
+
+// DecryptByteDanceMsg 抖音解密
+func DecryptByteDanceMsg(encodeAesKey string, encryptMsg string) (douYinMixMessage message.DouYinMixMessage, err error) {
+	// get aes key
+	AESKey, _ := base64.StdEncoding.DecodeString(encodeAesKey + "=")
+
+	// decrypt msg
+	decryptMsg, _ := DecryptByteDance(encryptMsg, string(AESKey))
+
+	// plain text
+	plainText := []byte(decryptMsg)
+	buf := bytes.NewBuffer(plainText[16:20])
+	var length int32
+	_ = binary.Read(buf, binary.BigEndian, &length)
+
+	// 推送的第三方 AppID
+	appIDStart := 20 + length
+	tpAppId := string(plainText[appIDStart:])
+	fmt.Printf("thirdparty appid: %s\n", tpAppId)
+
+	// 获取正常的消息体
+	msgBody := string(plainText[20 : 20+length])
+	fmt.Printf("decode msg body: %s\n", msgBody)
+
+	// 返回解析的消息
+	err = json.Unmarshal([]byte(msgBody), &douYinMixMessage)
+	fmt.Printf("msg %+v", douYinMixMessage)
+	if err != nil {
+		err = fmt.Errorf("解析抖音验签参数失败")
+	}
+	return
+}
+
+func DecryptByteDance(rawData, key string) (string, error) {
+	data, err := base64.StdEncoding.DecodeString(rawData)
+	if err != nil {
+		return "", err
+	}
+	dnData, err := AESCBCDecrypt(data, []byte(key))
+	if err != nil {
+		return "", err
+	}
+	return string(dnData), nil
+}
+
+func AESCBCDecrypt(encryptData, key []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	blockSize := block.BlockSize()
+	if len(encryptData) < blockSize {
+		return []byte{}, fmt.Errorf("cipherText too short")
+	}
+
+	iv := encryptData[:blockSize]
+	encryptData = encryptData[blockSize:]
+	if len(encryptData)%blockSize != 0 {
+		return []byte{}, fmt.Errorf("cipherText is not a multiple of the block size")
+	}
+
+	mode := cipher.NewCBCDecrypter(block, iv)
+	mode.CryptBlocks(encryptData, encryptData)
+	encryptData = PKCS7UnPadding(encryptData)
+
+	return encryptData, nil
+}
+
+func PKCS7UnPadding(origData []byte) []byte {
+	length := len(origData)
+	unPadding := int(origData[length-1])
+	return origData[:(length - unPadding)]
+}
+
+// VerifyByteDanceServer 抖音验签
+func VerifyByteDanceServer(tpToken string, timestamp string, nonce string, encrypt string, msgSignature string) (err error) {
+	values := []string{tpToken, timestamp, nonce, encrypt}
+	sort.Strings(values)
+	newMsgSignature := Sha1(strings.Join(values, ""))
+
+	if newMsgSignature != msgSignature {
+		err = fmt.Errorf("抖音验签失败")
+	}
+	return
+}
+
+func Sha1(str string) string {
+	h := sha1.New()
+	h.Write([]byte(str))
+	encodeStr := fmt.Sprintf("%x", h.Sum(nil))
+	return encodeStr
+}
+
+// getMessage 解析微信常规消息结构
 func (srv *Server) getMessage() (reply *message.Reply, err error) {
 	// 接收OpenId
 	srv.openID = srv.Query("openid")
