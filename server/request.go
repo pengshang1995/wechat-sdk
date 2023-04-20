@@ -126,9 +126,10 @@ func (srv *Server) getDouYinMessage() (reply *message.Reply, err error) {
 	var douYinEncryptData message.DouYinEncryptData
 	err = xml.Unmarshal(srv.requestRaw, &douYinEncryptData)
 	if err != nil {
-		err = fmt.Errorf("解析抖音验签参数失败")
+		err = fmt.Errorf("解析抖音验签参数失败:%s", err.Error())
 		return
 	}
+	fmt.Println("byte callback encrypt param", douYinEncryptData)
 	//验证签名
 	err = VerifyByteDanceServer(srv.Token, douYinEncryptData.TimeStamp, douYinEncryptData.Nonce, douYinEncryptData.Encrypt, douYinEncryptData.MsgSignature)
 	if err != nil {
@@ -137,7 +138,8 @@ func (srv *Server) getDouYinMessage() (reply *message.Reply, err error) {
 	}
 
 	srv.requestMsgDouYin, err = DecryptByteDanceMsg(srv.EncodingAESKey, douYinEncryptData.Encrypt)
-	fmt.Println("byte callback param", douYinEncryptData)
+	fmt.Println("byte callback param", srv.requestMsgDouYin)
+
 	if err != nil {
 		err = fmt.Errorf(err.Error())
 		return
@@ -178,7 +180,7 @@ func DecryptByteDanceMsg(encodeAesKey string, encryptMsg string) (douYinMixMessa
 	err = json.Unmarshal([]byte(msgBody), &douYinMixMessage)
 	fmt.Printf("msg %+v", douYinMixMessage)
 	if err != nil {
-		err = fmt.Errorf("解析抖音验签参数失败")
+		err = fmt.Errorf("解析抖音参数失败")
 	}
 	return
 }
