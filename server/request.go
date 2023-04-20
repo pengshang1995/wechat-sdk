@@ -136,17 +136,16 @@ func (srv *Server) getDouYinMessage() (reply *message.Reply, err error) {
 		return
 	}
 
-	var douYinMixMessage message.DouYinMixMessage
-
-	douYinMixMessage, err = DecryptByteDanceMsg(srv.EncodingAESKey, douYinEncryptData.Encrypt)
+	srv.requestMsgDouYin, err = DecryptByteDanceMsg(srv.EncodingAESKey, douYinEncryptData.Encrypt)
+	fmt.Println("byte callback param", douYinEncryptData)
 	if err != nil {
 		err = fmt.Errorf(err.Error())
 		return
 	}
 	//由于返回的没有appid 需要保存下来传入的appid
-	douYinMixMessage.AppID = srv.AppID
+	srv.requestMsgDouYin.AppID = srv.AppID
 	//
-	reply = srv.douYinMessageHandler(douYinMixMessage)
+	reply = srv.douYinMessageHandler(srv.requestMsgDouYin)
 
 	return
 

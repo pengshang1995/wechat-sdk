@@ -19,7 +19,7 @@ type Server struct {
 	payHandler           func(pay.NotifyResult) *message.Reply         // 消息钩子
 	requestRaw           []byte                                        // 原始数据
 	requestMsg           message.MixMessage                            // 消息类型数据
-	requestMsgDouYin     message.DouYinEncryptData                     // 消息类型数据
+	requestMsgDouYin     message.DouYinMixMessage                      // 消息类型数据
 	requestPayMsg        pay.NotifyResult                              // 支付消息类型数据
 	responseType         message.ResponseType                          // 返回类型 string xml json
 	responseMsg          interface{}                                   // 响应数据

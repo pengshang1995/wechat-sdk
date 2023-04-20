@@ -34,9 +34,13 @@ func (srv *Server) open(reply *message.Reply) (err error) {
 	if reply.MsgData == nil {
 		reply.MsgData = open.SUCCESS
 	}
-	// 验证票据 /10min通知
+	// 微信验证票据 /10min通知
 	if srv.requestMsg.InfoType == message.InfoTypeVerifyTicket {
 		srv.SetComponentVerifyTicket(srv.requestMsg.ComponentVerifyTicket)
+	}
+	//抖音验证票据
+	if srv.requestMsgDouYin.MsgType == message.EventTicket && srv.requestMsgDouYin.Event == message.MsgTypePush {
+		srv.SetComponentVerifyTicket(srv.requestMsgDouYin.Ticket)
 	}
 	srv.responseType = reply.ResponseType
 	srv.responseMsg = reply.MsgData
