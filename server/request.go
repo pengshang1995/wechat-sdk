@@ -65,6 +65,7 @@ func (srv *Server) handleRequest() (reply *message.Reply, err error) {
 // handleRequestDouYin 处理抖音的请求
 func (srv *Server) handleRequestDouYin() (reply *message.Reply, err error) {
 	srv.requestRaw, err = ioutil.ReadAll(srv.Request.Body)
+	fmt.Println(srv.requestRaw)
 	if err != nil {
 		err = fmt.Errorf("从body中解析xml失败, err=%v", err)
 		return
@@ -124,7 +125,7 @@ func (srv *Server) getPay() (reply *message.Reply, err error) {
 
 func (srv *Server) getDouYinMessage() (reply *message.Reply, err error) {
 	var douYinEncryptData message.DouYinEncryptData
-	err = xml.Unmarshal(srv.requestRaw, &douYinEncryptData)
+	err = json.Unmarshal(srv.requestRaw, &douYinEncryptData)
 	if err != nil {
 		err = fmt.Errorf("解析抖音验签参数失败:%s", err.Error())
 		return
