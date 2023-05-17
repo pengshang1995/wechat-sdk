@@ -204,7 +204,8 @@ func (ctx *Context) RefreshAuthrToken(appid, refreshToken string) (*AuthrAccessT
 	}
 
 	authrTokenKey := "authorizer_access_token_" + appid
-	ctx.Cache.Set(authrTokenKey, ret.AccessToken, time.Minute*80)
+
+	ctx.Cache.Set(authrTokenKey, ret.AccessToken, time.Duration(ret.ExpiresIn-60)*time.Second)
 
 	return ret, nil
 }
