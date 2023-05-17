@@ -18,7 +18,7 @@ import (
 	"time"
 )
 
-const PROXY_URL = "http://net-proxy-pub.sftcwl.com:1080"
+const PROXY_URL = "http://net-proxy-pub-test.sftcwl.com:1080"
 
 // HTTPGet get 请求
 func HTTPGet(uri string) ([]byte, error) {
