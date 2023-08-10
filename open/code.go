@@ -169,13 +169,11 @@ func (m *MiniPrograms) ApplyPrivacyInterface() (err error) {
 	ret := util.CommonError{}
 
 	picList := []string{
-		"http://tcpublic-1254389369.cos.ap-guangzhou.myqcloud.com/fem/resource/4241d8a44d277c92a5afc82411b81639.jpg",
-		"http://tcpublic-1254389369.cos.ap-guangzhou.myqcloud.com/fem/resource/c7a55417c3ec6f153cd003b7858615e9.jpg",
-		"http://tcpublic-1254389369.cos.ap-guangzhou.myqcloud.com/fem/resource/da13e4aa33a6f15de4c5572841ec9bdf.jpg",
+		"https://tcpublic-1254389369.cos.ap-guangzhou.myqcloud.com/zp/images/shot.png",
 	}
 	applyPrivacyInterfaceParams := ApplyPrivacyInterfaceParam{
-		ApiName: "wx.getFuzzyLocation",
-		Content: "由于涉及求职招聘业务，需要使用用户模糊的经纬度数据，在系统内用于精确解析用户所在城市推荐职位。",
+		ApiName: "wx.getLocation",
+		Content: "因当前业务涉及员工出勤打卡，当用户上下班进行打卡时，需获取用户当前实时地理位置以便监控员工所在位置，防止员工无法考勤，或虚假考勤，故申请 wx.getLocation 接口，用于获取员工位置进行打卡。",
 		PicList: picList,
 	}
 
@@ -204,7 +202,7 @@ func (m *MiniPrograms) Commit(param CommitParam) (err error) {
 	//配置文件设置为true
 	param.Ext.ExtEnable = true
 	//配置
-	param.Ext.RequiredPrivateInfos = []string{"getFuzzyLocation"}
+	param.Ext.RequiredPrivateInfos = []string{"getLocation", "chooseLocation"}
 
 	if param.ExtJSON == "" {
 		var extJsonByte []byte
