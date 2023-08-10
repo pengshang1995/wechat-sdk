@@ -1,14 +1,9 @@
 package open
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/pengshang1995/wechat-sdk/context"
 	"github.com/pengshang1995/wechat-sdk/util"
-	"io/ioutil"
-	"net/http"
 	"net/url"
-	"strings"
 )
 
 const (
@@ -195,34 +190,34 @@ func (m *MiniPrograms) getBinary(urlStr string, param map[string]string) (ret []
 	if err != nil {
 		return
 	}
-	response, err := http.Get(sendURL)
+	responseData, err := util.HTTPGet(sendURL)
 	if err != nil {
 		return
 	}
-	defer response.Body.Close()
+	//defer response.Body.Close()
 
-	if response.StatusCode != http.StatusOK {
-		err = fmt.Errorf("http get error : uri=%v , statusCode=%v", sendURL, response.StatusCode)
-		return
-	}
-	responseData, err := ioutil.ReadAll(response.Body)
-	contentType := response.Header.Get("Content-Type")
+	//if response.StatusCode != http.StatusOK {
+	//	err = fmt.Errorf("http get error : uri=%v , statusCode=%v", sendURL, response.StatusCode)
+	//	return
+	//}
+	//responseData, err := ioutil.ReadAll(response.Body)
+	//contentType := response.Header.Get("Content-Type")
 
-	if strings.HasPrefix(contentType, "application/json") {
-		// 返回错误信息
-		var jsonRet util.CommonError
-		err = json.Unmarshal(responseData, &jsonRet)
-		if err == nil && jsonRet.ErrCode != 0 {
-			err = fmt.Errorf("[%d]: %s", jsonRet.ErrCode, jsonRet.ErrMsg)
-			return
-		}
-	} else if contentType == "image/jpeg" {
-		// 返回文件
-		ret = responseData
-		return
-	} else {
-		err = fmt.Errorf("fetchCode error : unknown response content type - %v", contentType)
-		return
-	}
+	//if strings.HasPrefix(contentType, "application/json") {
+	//	// 返回错误信息
+	//	var jsonRet util.CommonError
+	//	err = json.Unmarshal(responseData, &jsonRet)
+	//	if err == nil && jsonRet.ErrCode != 0 {
+	//		err = fmt.Errorf("[%d]: %s", jsonRet.ErrCode, jsonRet.ErrMsg)
+	//		return
+	//	}
+	//} else if contentType == "image/jpeg" {
+	// 返回文件
+	ret = responseData
+	//	return
+	//} else {
+	//	err = fmt.Errorf("fetchCode error : unknown response content type - %v", contentType)
+	//	return
+	//}
 	return
 }
